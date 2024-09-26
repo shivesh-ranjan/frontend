@@ -2,32 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-r from-pink-500 to-yellow-500 hover:from-pink-500 hover:to-purple-500 font-extrabold text-white py-1 px-4 rounded-lg hover:text-black;
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+@layer components {
+  .btn-secondary {
+    @apply bg-white text-black py-1 px-2 rounded-lg hover:text-white hover:bg-black;
+  }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+@layer components {
+  .box-primary {
+    @apply bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg;
+  }
+}
+
+@layer components {
+  .text-primary {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-yellow-500;
   }
 }
