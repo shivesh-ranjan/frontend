@@ -49,11 +49,7 @@ jobs:
       - name: Build Next.js Static Export
         run: npm run build
 
-      # Step 6: Export the static files to the 'out' directory
-      - name: Export Static Files
-        run: npm run export
-
-      # Step 7: Upload the static files as artifacts for deployment
+      # Step 6: Upload the static files as artifacts for deployment
       - name: Upload Static Files for Deployment
         uses: actions/upload-pages-artifact@v3
         with:
