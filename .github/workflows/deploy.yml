@@ -1,23 +1,75 @@
-name: Deploy to GitHub Pages
+name: Deploy Next.js to GitHub Pages
 
+# Run the workflow on pushes to the main branch
 on:
   push:
     branches:
-      - main
+      - main  # or specify another branch if needed
 
+# Permissions needed for GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Define the jobs for the workflow
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Install dependencies
+      # Step 1: Checkout the repository to get the code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js environment and cache dependencies
+      - name: Setup Node.js and Cache Dependencies
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache Node Modules
+        id: cache-node-modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: node-modules-${{ hashFiles('package-lock.json') }}
+
+      # Step 3: Install dependencies (use cached node_modules if available)
+      - name: Install Dependencies
         run: npm ci
-      - name: Build and export
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+
+      # Step 4: Configure Next.js for static export (optional: build step can be skipped if already configured in next.config.js)
+      - name: Configure Next.js Output for Static Export
         run: |
-          next build
-          next export
-      - name: Commit and push to GitHub Pages
-        run: |
-          git add out
-          git commit -m "Deploy to GitHub Pages"
-          git subtree push --prefix out origin gh-pages
+          echo "NEXT_PUBLIC_BASE_PATH=/your-repo-name" >> .env.local  # Replace `/your-repo-name` with your actual GitHub Pages repo name
+
+      # Step 5: Build the Next.js app with static export
+      - name: Build Next.js Static Export
+        run: npm run build
+
+      # Step 6: Export the static files to the 'out' directory
+      - name: Export Static Files
+        run: npm run export
+
+      # Step 7: Upload the static files as artifacts for deployment
+      - name: Upload Static Files for Deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out  # Ensure this matches the output directory
+
+  deploy:
+    # Define the environment to which we're deploying (GitHub Pages)
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      # Step 8: Publish the static files to GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
