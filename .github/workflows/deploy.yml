@@ -1,0 +1,23 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: npm ci
+      - name: Build and export
+        run: |
+          next build
+          next export
+      - name: Commit and push to GitHub Pages
+        run: |
+          git add out
+          git commit -m "Deploy to GitHub Pages"
+          git subtree push --prefix out origin gh-pages
